@@ -250,6 +250,16 @@ class SuggestIn(BaseModel):
     count: int | None = None
 
 
+@app.post("/api/projects/{pid}/retry")
+def retry(pid: str):
+    p = load(pid)
+    if p["status"] != "error":
+        raise HTTPException(409, "Only failed videos can be retried.")
+    set_status(pid, "queued", 0)
+    pool.submit(process, pid)
+    return {"ok": True}
+
+
 @app.post("/api/projects/{pid}/suggest")
 def resuggest(pid: str, body: SuggestIn):
     p = load(pid)

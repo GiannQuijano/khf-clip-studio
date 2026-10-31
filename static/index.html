@@ -262,6 +262,7 @@ function renderProject(full) {
         ${p.summary ? `<p style="margin-bottom:0">${esc(p.summary)}</p>` : ''}
         <div class="actions">
           ${p.segments.length ? `<a class="btn small" href="/api/projects/${p.id}/transcript.srt">Download transcript (.srt)</a>` : ''}
+          ${p.status === 'error' ? `<button class="btn small primary" onclick="retryProject()">Try again</button>` : ''}
           <button class="btn small ghost" onclick="deleteProject()">Delete video</button>
         </div>
       </div>
@@ -407,6 +408,12 @@ async function resuggest() {
 async function deleteRender(rid) {
   await api(`/api/projects/${current.id}/renders/${rid}`, {method: 'DELETE'});
   current = await api(`/api/projects/${current.id}`); renderProject(false);
+}
+async function retryProject() {
+  try {
+    await api(`/api/projects/${current.id}/retry`, {method: 'POST'});
+    current = await api(`/api/projects/${current.id}`); renderProject(false); loadList(); schedulePoll();
+  } catch (err) { toast(err.message) }
 }
 async function deleteProject() {
   if (!confirm('Delete this video and all its exports?')) return;

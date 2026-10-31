@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import os
 import threading
+import wave
 from pathlib import Path
+
+import numpy as np
 
 _model = None
 _lock = threading.Lock()
@@ -25,7 +28,12 @@ def _get_model():
 def transcribe(audio_path: Path, on_progress=None) -> dict:
     """Returns {"language", "segments": [{start, end, text}], "words": [{start, end, word}]}."""
     model = _get_model()
-    seg_iter, info = model.transcribe(str(audio_path), word_timestamps=True, vad_filter=True)
+    # Pass raw samples instead of a path: faster-whisper's own decoder uses a PyAV option that
+    # newer PyAV releases removed. Our audio is already 16 kHz mono 16-bit PCM from ffmpeg.
+    with wave.open(str(audio_path), "rb") as wf:
+        pcm = wf.readframes(wf.getnframes())
+    samples = np.frombuffer(pcm, dtype=np.int16).astype(np.float32) / 32768.0
+    seg_iter, info = model.transcribe(samples, word_timestamps=True, vad_filter=True)
     segments, words = [], []
     total = info.duration or 1
     for seg in seg_iter:
