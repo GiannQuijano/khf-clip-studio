@@ -1,6 +1,7 @@
 """Speech-to-text with word timestamps using faster-whisper (runs locally, no API key needed)."""
 from __future__ import annotations
 
+import gc
 import os
 import threading
 import wave
@@ -21,8 +22,17 @@ def _get_model():
             name = os.environ.get("WHISPER_MODEL", "small")
             device = os.environ.get("WHISPER_DEVICE", "auto")
             compute = "int8" if device in ("auto", "cpu") else "float16"
-            _model = WhisperModel(name, device=device, compute_type=compute)
+            _model = WhisperModel(name, device=device, compute_type=compute,
+                                  cpu_threads=int(os.environ.get("WHISPER_THREADS", "2")), num_workers=1)
         return _model
+
+
+def release() -> None:
+    """Free the speech model's memory between jobs (it reloads from disk in a few seconds)."""
+    global _model
+    with _lock:
+        _model = None
+    gc.collect()
 
 
 def transcribe(audio_path: Path, on_progress=None) -> dict:

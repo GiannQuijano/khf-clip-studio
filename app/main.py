@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from . import ai, media
-from .transcribe import transcribe
+from .transcribe import release as release_model, transcribe
 
 DATA = Path(os.environ.get("DATA_DIR", "./data")).resolve()
 PROJECTS = DATA / "projects"
@@ -35,7 +35,9 @@ DEFAULT_SETTINGS = {
 }
 
 app = FastAPI(title="KHF Clip Studio")
-pool = ThreadPoolExecutor(max_workers=int(os.environ.get("WORKERS", "2")))
+# One job at a time by default: transcription and video encoding each use a lot of memory, and running
+# them side by side can exceed a 2 GB server. Raise WORKERS on a bigger instance.
+pool = ThreadPoolExecutor(max_workers=int(os.environ.get("WORKERS", "1")))
 _locks: dict[str, threading.Lock] = {}
 _locks_guard = threading.Lock()
 
@@ -125,6 +127,7 @@ def run_suggest(pid: str, opts: dict):
 
 def process(pid: str):
     try:
+        update(pid, lambda p: p.update(attempts=p.get("attempts", 0) + 1))
         d = PROJECTS / pid
         p = load(pid)
         src = d / p["source"]
@@ -136,7 +139,10 @@ def process(pid: str):
         if info["has_audio"]:
             set_status(pid, "transcribing", 0.05)
             media.extract_audio(src, d / "audio.wav")
-            tr = transcribe(d / "audio.wav", on_progress=lambda f: set_status(pid, "transcribing", 0.05 + 0.75 * f))
+            try:
+                tr = transcribe(d / "audio.wav", on_progress=lambda f: set_status(pid, "transcribing", 0.05 + 0.75 * f))
+            finally:
+                release_model()
             segments, words, lang = tr["segments"], tr["words"], tr["language"]
             (d / "audio.wav").unlink(missing_ok=True)
         update(pid, lambda p: p.update(segments=segments, words=words, language=lang))
@@ -258,6 +264,7 @@ def retry(pid: str):
     p = load(pid)
     if p["status"] != "error":
         raise HTTPException(409, "Only failed videos can be retried.")
+    update(pid, lambda p: p.update(attempts=0))
     set_status(pid, "queued", 0)
     pool.submit(process, pid)
     return {"ok": True}
@@ -368,7 +375,12 @@ def resume_unfinished():
             continue
         p = json.loads(f.read_text())
         if p["status"] not in ("ready", "error"):
-            pool.submit(process, p["id"])
+            if p.get("attempts", 0) >= 2:
+                # It was interrupted twice (usually the server running out of memory): stop retrying.
+                set_status(p["id"], "error", error="Processing was interrupted twice, most likely because the "
+                           "server ran out of memory. Try a shorter video, or a bigger server.")
+            else:
+                pool.submit(process, p["id"])
         for r in p.get("renders", []):
             if r["status"] == "rendering":
                 pool.submit(do_render, p["id"], r["id"])

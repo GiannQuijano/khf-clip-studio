@@ -167,12 +167,12 @@ def render_clip(src: Path, dst: Path, start: float, end: float, aspect: str = "9
     vf += "[v]"
     cmd = [
         "ffmpeg", "-y", "-ss", f"{start:.3f}", "-to", f"{end:.3f}", "-i", str(src),
-        "-filter_complex", vf, "-map", "[v]",
+        "-filter_threads", "1", "-filter_complex", vf, "-map", "[v]",
     ]
     if has_audio:
         cmd += ["-map", "0:a:0", "-c:a", "aac", "-b:a", "160k"]
     cmd += [
-        "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
+        "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p", "-threads", "2",
         "-r", "30", "-movflags", "+faststart", str(dst),
     ]
     run(cmd)

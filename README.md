@@ -56,7 +56,7 @@ This uses the Starter plan with a 10 GB disk (roughly $7/month plus disk).
 | `WHISPER_MODEL` | `small` | `tiny`/`base` are faster, `medium`/`large-v3` are more accurate |
 | `WHISPER_DEVICE` | `auto` | Set to `cuda` on a GPU server for much faster transcription |
 | `DATA_DIR` | `./data` | Where uploads, transcripts and exports are stored |
-| `WORKERS` | `2` | How many videos/exports are processed at once |
+| `WORKERS` | `1` | How many videos/exports are processed at once (raise only on a bigger server) |
 
 ## Notes
 
