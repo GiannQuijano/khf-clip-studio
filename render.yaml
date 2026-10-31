@@ -1,0 +1,18 @@
+# One-click deploy on Render (https://render.com): New > Blueprint > pick this repo.
+services:
+  - type: web
+    name: khf-clip-studio
+    runtime: docker
+    plan: starter            # persistent disks need a paid plan (about $7/month)
+    healthCheckPath: /api/config
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false          # Render asks you to paste it during setup
+      - key: WHISPER_MODEL
+        value: base          # small instance: base is fast enough; switch to small on a bigger plan
+      - key: DATA_DIR
+        value: /data
+    disk:
+      name: clip-data
+      mountPath: /data
+      sizeGB: 10

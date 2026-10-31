@@ -39,6 +39,14 @@ docker run -p 8000:8000 -e ANTHROPIC_API_KEY=sk-ant-... -v $PWD/data:/data khf-c
 The first transcription downloads the Whisper model (about 500 MB for `small`). Without an API key the app still
 works, but clip suggestions fall back to simple sentence-based splits.
 
+## Deploy to Render (quickest test server)
+
+1. Push this folder to a GitHub repo.
+2. On [render.com](https://render.com), choose **New > Blueprint** and pick the repo. It reads `render.yaml`.
+3. Paste your `ANTHROPIC_API_KEY` when asked. Render builds the Docker image and gives you a URL.
+
+This uses the Starter plan with a 10 GB disk (roughly $7/month plus disk).
+
 ## Settings (environment variables)
 
 | Variable | Default | What it does |
