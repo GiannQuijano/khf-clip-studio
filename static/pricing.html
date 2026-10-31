@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clip Studio Costs · Kind Human Foundation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Nunito+Sans:wght@400;600;700&family=Lora:ital@1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="brand.css">
+<link rel="icon" href="logo.png">
+<style>
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:22px}
+.big .card{display:flex;flex-direction:column;gap:2px}
+.big .v{font-family:var(--display);font-size:32px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.1}
+.big .l{font-size:14px;color:var(--muted)}
+.scen .card h3{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.scen .card h3 span{font-variant-numeric:tabular-nums;color:var(--accent)}
+.scen .card p{margin:6px 0 0;font-size:14px;color:var(--muted)}
+ol.handover{padding-left:22px}
+ol.handover li{margin-bottom:10px}
+.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:600px){.grid.two{grid-template-columns:1fr}}
+.who{display:inline-block;font-size:12px;font-weight:700;border-radius:99px;padding:1px 8px;background:var(--accent-soft);color:var(--accent);margin-left:6px;vertical-align:1px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="./"><img class="logo-light" src="logo.png" alt="Kind Human Foundation"><img class="logo-dark" src="logo-white.png" alt="Kind Human Foundation"><span class="app">Clip Studio</span></a>
+  <nav class="nav"><a href="./">Studio</a><a href="guide.html">How it works</a><a class="on" href="pricing.html">Pricing</a></nav>
+  <div class="spacer"></div>
+  <a class="btn small primary" href="./">Open the studio</a>
+</header>
+
+<main class="doc">
+  <div class="eyebrow">Costs</div>
+  <h1>What Clip Studio costs to run</h1>
+  <p class="lede">There's no software licence. The foundation pays only for the server that runs the studio and a few cents of AI per video. Most months come to about $30 to $40.</p>
+
+  <div class="big">
+    <div class="card"><span class="v">$27.50</span><span class="l">per month, fixed (server + storage)</span></div>
+    <div class="card"><span class="v">≈ 10¢</span><span class="l">per video for Claude's clip picks and captions</span></div>
+    <div class="card"><span class="v">$0</span><span class="l">for transcription (runs on your own server)</span></div>
+  </div>
+
+  <h2>The monthly bill, line by line</h2>
+  <div class="tablewrap card" style="padding:4px 8px">
+  <table>
+    <thead><tr><th>What</th><th>Provider</th><th>Why it's needed</th><th class="num">Cost</th></tr></thead>
+    <tbody>
+      <tr><td>Web server (1 CPU, 2 GB memory)</td><td>Render</td><td>Runs the studio, transcribes speech and renders clips. 2 GB is the smallest size that transcribes reliably.</td><td class="num">$25.00 / mo</td></tr>
+      <tr><td>Storage disk, 10 GB</td><td>Render</td><td>Keeps uploaded videos and exports. Billed at $0.25 per GB.</td><td class="num">$2.50 / mo</td></tr>
+      <tr><td>Claude AI</td><td>Anthropic</td><td>Reads each transcript, picks the clips and writes captions. Pay as you go.</td><td class="num">≈ $0.03–0.20 / video</td></tr>
+      <tr><td>Render workspace</td><td>Render</td><td>The free Hobby workspace is enough for one service.</td><td class="num">$0</td></tr>
+      <tr class="total"><td colspan="3">Typical month</td><td class="num">≈ $30–40</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note" style="margin-top:12px"><b>How the AI cost is worked out:</b> Claude Opus 5.5 is billed at $4 per million word pieces ("tokens") read and $20 per million written. A 10-minute talk is roughly 4,000 tokens in and 2,000 to 5,000 out, which comes to 6 to 12 cents. Each "Find new clips" costs about the same again. A 1-hour recording is about 20 cents.</p>
+
+  <h2>What a month looks like</h2>
+  <div class="grid scen">
+    <div class="card"><h3>Light <span>≈ $29</span></h3><p>8 short field videos a month, a few clips from each.</p></div>
+    <div class="card"><h3>Regular <span>≈ $33–37</span></h3><p>30 videos a month, asking Claude for new clips once or twice on each.</p></div>
+    <div class="card"><h3>Heavy <span>≈ $45–50</span></h3><p>100 videos a month, including long event recordings. If it starts to feel slow, the next server size ($85/mo, 4 GB) roughly doubles speed.</p></div>
+  </div>
+  <p style="color:var(--muted);font-size:14px">Estimates use Render's and Anthropic's published prices as of October 2026. Check render.com/pricing and anthropic.com/pricing for current rates.</p>
+
+  <h2>How the foundation gets value from it</h2>
+  <div class="grid two">
+    <div class="card"><h3>More posts from every trip</h3><p>One 10-minute site visit can become 3 to 5 ready-to-post clips with captions, instead of one long video nobody finishes.</p></div>
+    <div class="card"><h3>Hours back each week</h3><p>Finding the moment, cutting, reframing to vertical and typing subtitles usually takes 30 to 60 minutes per clip by hand. Here it's a few clicks and a review.</p></div>
+    <div class="card"><h3>Cheaper than outsourcing</h3><p>If an editor charges $20 per short clip, just two clips a month cover the cost of the studio.</p></div>
+    <div class="card"><h3>Consistent and on-brand</h3><p>Every clip uses the foundation's teal-and-navy captions and the same donor-focused voice, whoever on the team makes it.</p></div>
+  </div>
+
+  <h2>Moving the billing to the foundation</h2>
+  <p>The studio is currently paid for on a temporary card. To move it over:</p>
+  <ol class="handover">
+    <li><b>Render (server and storage)</b><span class="who">5 min</span><br>In the Render dashboard, open <b>Workspace settings → Billing</b> and replace the payment card with the foundation's. To hand over the account entirely, invite the foundation's email under <b>Workspace settings → Members</b>, make them an owner, then remove the temporary owner.</li>
+    <li><b>Anthropic (Claude AI)</b><span class="who">10 min</span><br>The foundation creates its own account at console.anthropic.com, adds a card or prepaid credit under <b>Billing</b>, and creates an API key under <b>API keys</b>. It's a good idea to set a monthly spend limit there too, such as $20.</li>
+    <li><b>Swap the key</b><span class="who">2 min</span><br>In Render, open the <b>khf-clip-studio</b> service → <b>Environment</b>, replace the value of <code>ANTHROPIC_API_KEY</code> with the foundation's key, and click <b>Save</b>. The studio restarts in a minute or two, and no videos are lost.</li>
+  </ol>
+
+  <h2>Optional extras</h2>
+  <div class="tablewrap card" style="padding:4px 8px">
+  <table>
+    <thead><tr><th>Option</th><th>What it adds</th><th class="num">Extra cost</th></tr></thead>
+    <tbody>
+      <tr><td>More storage</td><td>Each 10 GB holds roughly 90 minutes of phone video. Or delete old videos for free.</td><td class="num">+$2.50 / mo per 10 GB</td></tr>
+      <tr><td>Faster server (2 CPU, 4 GB)</td><td>About twice as fast for long videos and many exports.</td><td class="num">+$60 / mo</td></tr>
+      <tr><td>Custom web address</td><td>For example clips.kindhumanfoundation.com instead of onrender.com.</td><td class="num">$0 (uses your existing domain)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="foot"><span class="tag">Your donations. Our mission. Their joy.</span> · Clip Studio for Kind Human Foundation · <a href="guide.html">How it works</a></p>
+</main>
+</body>
+</html>

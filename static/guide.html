@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How Clip Studio Works · Kind Human Foundation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Nunito+Sans:wght@400;600;700&family=Lora:ital@1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="brand.css">
+<link rel="icon" href="logo.png">
+<style>
+.steps{counter-reset:s;display:grid;gap:14px;margin-top:8px}
+.step{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;align-items:start}
+.step .n{width:44px;height:44px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:18px}
+.step .card{min-width:0}
+.step p{margin:4px 0 0}
+.step ul{margin:8px 0 0;padding-left:20px}
+.kv{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 14px;font-size:14px;margin-top:10px}
+.kv b{font-family:var(--display);font-weight:600}
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:18px 0 0;font-family:var(--display);font-size:14px}
+.flow span{background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:6px 14px}
+.flow i{color:var(--teal-deep);font-style:normal}
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+details+details{margin-top:8px}
+summary{cursor:pointer;font-family:var(--display);font-weight:600}
+details p{margin:8px 0 0}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="./"><img class="logo-light" src="logo.png" alt="Kind Human Foundation"><img class="logo-dark" src="logo-white.png" alt="Kind Human Foundation"><span class="app">Clip Studio</span></a>
+  <nav class="nav"><a href="./">Studio</a><a class="on" href="guide.html">How it works</a><a href="pricing.html">Pricing</a></nav>
+  <div class="spacer"></div>
+  <a class="btn small primary" href="./">Open the studio</a>
+</header>
+
+<main class="doc">
+  <div class="eyebrow">Guide</div>
+  <h1>How Clip Studio works</h1>
+  <p class="lede">Clip Studio turns the videos you record in the field into short clips for Instagram, TikTok, YouTube Shorts, Facebook and LinkedIn. You upload a video, Claude finds the strongest moments and writes the captions, and you export clips that are ready to post.</p>
+  <div class="flow"><span>Upload</span><i>→</i><span>Transcribe</span><i>→</i><span>Claude picks clips</span><i>→</i><span>Review &amp; tweak</span><i>→</i><span>Export &amp; post</span></div>
+
+  <h2>Before your first video: set your brand voice</h2>
+  <div class="card">
+    <p style="margin-top:0">Click <b>Brand settings</b> in the top right. It's already filled in for Kind Human Foundation's clean-water mission. You can edit it any time to change:</p>
+    <ul>
+      <li><b>Who you are and who you're talking to.</b> Claude uses this for tone.</li>
+      <li><b>Your usual call to action</b>, for example "Donate at kindhumanfoundation.com".</li>
+      <li><b>Clip length and how many clips per video.</b> The default is 15 to 60 seconds and up to 5 clips.</li>
+    </ul>
+    <p>Settings apply to every new video and to every "Find new clips".</p>
+  </div>
+
+  <h2>Step by step</h2>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><div class="card">
+      <h3>Upload a video</h3>
+      <p>Drag a video onto <b>Upload a video</b> on the left, or click it to choose a file. Phone videos (.mov, .mp4) work as they are. Vertical or horizontal are both fine.</p>
+    </div></div>
+    <div class="step"><div class="n">2</div><div class="card">
+      <h3>Wait while it's processed</h3>
+      <p>The progress bar shows each stage. First, every word spoken is written out with its exact timing. Then Claude reads the transcript and picks the clips. As a rough guide, a 1-minute video takes 1 to 2 minutes and a 10-minute video about 5 to 10 minutes. You can leave the page and come back; your videos are listed on the left.</p>
+    </div></div>
+    <div class="step"><div class="n">3</div><div class="card">
+      <h3>Review Claude's suggested clips</h3>
+      <p>Each suggestion is a card with:</p>
+      <div class="kv">
+        <b>Score</b><span>How likely the clip is to perform well, out of 100. Best clips are listed first.</span>
+        <b>Hook</b><span>The opening line that grabs attention in the first seconds.</span>
+        <b>Why it works</b><span>A short note on why this moment stands on its own.</span>
+        <b>Context check</b><span>A warning when a clip could confuse or mislead without more context, or when something needs a check before posting (for example, a child's name).</span>
+        <b>Caption &amp; hashtags</b><span>Ready to paste into your post. Click <b>Copy</b>.</span>
+        <b>Shorts title</b><span>A title for YouTube Shorts.</span>
+      </div>
+      <p>Click <b>▶ Preview</b> to play just that clip in the player above.</p>
+    </div></div>
+    <div class="step"><div class="n">4</div><div class="card">
+      <h3>Want different clips? Tell Claude what to look for</h3>
+      <p>Type an instruction in the box above the clips and press <b>Find new clips</b>. For example:</p>
+      <ul>
+        <li>"Moments about the kids at the well"</li>
+        <li>"A 15-second teaser for TikTok"</li>
+        <li>"Thank-you moments for our donors"</li>
+      </ul>
+    </div></div>
+    <div class="step"><div class="n">5</div><div class="card">
+      <h3>Fine-tune a clip</h3>
+      <div class="kv">
+        <b>Start / End</b><span>Nudge the times (in seconds) to trim. Preview again to check.</span>
+        <b>Format</b><span>9:16 for Reels, TikTok and Shorts. 4:5 or 1:1 for feed posts. 16:9 for YouTube and LinkedIn.</span>
+        <b>Framing</b><span><i>Fill</i> crops to fill the frame (best for one person talking). <i>Fit</i> keeps the whole shot over a blurred background (best for wide scenes).</span>
+        <b>Crop position</b><span>With Fill, slide left or right to keep the subject centred.</span>
+        <b>Captions</b><span>Word-by-word captions are added to the video. <i>Kind Human (teal)</i> uses your brand colours.</span>
+        <b>On-screen title</b><span>A headline shown for the first 4 seconds. Leave it empty for none.</span>
+      </div>
+    </div></div>
+    <div class="step"><div class="n">6</div><div class="card">
+      <h3>Export and download</h3>
+      <p>Click <b>Export clip</b>. The finished video appears in the <b>Exports</b> tab after a minute or two. Click <b>Download</b> to save the .mp4, then upload it to your social platform with the caption you copied.</p>
+    </div></div>
+    <div class="step"><div class="n">7</div><div class="card">
+      <h3>Cut your own clip from the transcript</h3>
+      <p>Open <b>Transcript &amp; manual cut</b>. Click a first and a last line to select that range, or play the video and use <b>Set start here</b> and <b>Set end here</b>. The same export options appear below. You can also download the full transcript as an .srt subtitle file.</p>
+    </div></div>
+  </div>
+
+  <h2>Tips for videos that clip well</h2>
+  <div class="grid">
+    <div class="card"><h3>Sound first</h3><p>Clear speech matters more than picture. Get close to the speaker, avoid wind, and use a clip-on mic if you have one.</p></div>
+    <div class="card"><h3>Film vertical when you can</h3><p>Most clips end up 9:16. Filming vertical means nothing important gets cropped out.</p></div>
+    <div class="card"><h3>Say the context out loud</h3><p>"We're in Proddatur, standing at the new borewell" makes a clip understandable on its own. Name places, numbers and who you're thanking.</p></div>
+    <div class="card"><h3>Always review before posting</h3><p>Claude is a strong first editor, not the final one. Watch each export and read the context check before you post.</p></div>
+  </div>
+
+  <h2>Questions</h2>
+  <details><summary>Who can see our videos?</summary><p>Videos and exports are stored on the foundation's own server. To pick clips, the transcript text (not the video) is sent to Anthropic's Claude API. The studio doesn't have its own login yet, so only share the link with your team.</p></details>
+  <details><summary>How big can a video be?</summary><p>Phone videos up to about 30 minutes work well. Very large 4K files upload slowly; if you can, export or record at 1080p.</p></details>
+  <details><summary>Does it work in other languages?</summary><p>Yes. Speech is detected automatically in most major languages, and captions are written in the language spoken.</p></details>
+  <details><summary>Something went wrong. What do I do?</summary><p>Open the video and click <b>Try again</b>. If it fails again, send a screenshot of the error to your Clip Studio contact.</p></details>
+  <details><summary>How do I free up space?</summary><p>Open a video and click <b>Delete video</b>. This removes the original and all its exports from the server.</p></details>
+
+  <p class="foot"><span class="tag">Your donations. Our mission. Their joy.</span> · Clip Studio for Kind Human Foundation · <a href="pricing.html">What it costs</a></p>
+</main>
+</body>
+</html>

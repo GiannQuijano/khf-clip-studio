@@ -26,8 +26,11 @@ SETTINGS_FILE = DATA / "settings.json"
 STATIC = Path(__file__).resolve().parent.parent / "static"
 
 DEFAULT_SETTINGS = {
-    "brand_context": "Kind Human Foundation. Tone: warm, hopeful, genuine. "
-                     "Edit this to describe your mission, audience and usual call to action.",
+    "brand_context": "Kind Human Foundation funds practical, lasting clean-water solutions, such as wells and "
+                     "borewells, in communities where safe water is hardest to reach. Tagline: Your donations. "
+                     "Our mission. Their joy. Audience: current and potential donors and supporters. Tone: warm, "
+                     "hopeful, genuine, grateful; show real people and real impact, never pity. Usual call to "
+                     "action: donate or learn more at kindhumanfoundation.com.",
     "min_len": 15, "max_len": 60, "count": 5,
 }
 
@@ -285,7 +288,7 @@ class RenderIn(BaseModel):
     aspect: str = "9:16"
     framing: str = "crop"
     captions: bool = True
-    caption_style: str = "bold"
+    caption_style: str = "kind"
     title: str = ""
     focus_x: float = Field(0.5, ge=0, le=1)
     label: str = ""

@@ -62,21 +62,22 @@ def _esc(text: str) -> str:
 
 
 CAPTION_STYLES = {
-    # name: (font size as fraction of height, primary colour, highlight colour, uppercase)
-    "bold": (0.055, "&H00FFFFFF", "&H0000E5FF", True),     # white, active word yellow
-    "clean": (0.045, "&H00FFFFFF", "&H00FFFFFF", False),   # plain white sentence case
-    "kind": (0.052, "&H00FFFFFF", "&H0095E07A", True),     # white, active word soft green
+    # name: (font size as fraction of height, primary colour, highlight colour, uppercase, title box colour)
+    # ASS colours are &HAABBGGRR. Kind Human Foundation: navy #2E3487, teal #74C0B6.
+    "kind": (0.052, "&H00FFFFFF", "&H00B6C074", True, "&H0087342E"),   # white, active word KHF teal, navy title
+    "bold": (0.055, "&H00FFFFFF", "&H0000E5FF", True, "&H00000000"),   # white, active word yellow
+    "clean": (0.045, "&H00FFFFFF", "&H00FFFFFF", False, "&H00000000"), # plain white sentence case
 }
 
 
 def build_ass(words: list[dict], start: float, end: float, width: int, height: int,
-              style: str = "bold", title: str | None = None, words_per_line: int = 3) -> str:
+              style: str = "kind", title: str | None = None, words_per_line: int = 3) -> str:
     """Build an ASS subtitle file with short, punchy word groups (social-media style).
 
     `words` are transcript words with absolute times; they are shifted to be relative to `start`.
     The word currently being spoken is highlighted.
     """
-    size_frac, primary, highlight, upper = CAPTION_STYLES.get(style, CAPTION_STYLES["bold"])
+    size_frac, primary, highlight, upper, title_box = CAPTION_STYLES.get(style, CAPTION_STYLES["kind"])
     fs = int(height * size_frac) if height >= width else int(height * size_frac * 1.2)
     margin_v = int(height * (0.22 if height > width else 0.10))
     title_fs = int(fs * 0.8)
@@ -90,7 +91,7 @@ ScaledBorderAndShadow: yes
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Cap,Inter,{fs},{primary},&H000000FF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,{max(3, fs // 12)},2,2,60,60,{margin_v},1
-Style: Title,Inter,{title_fs},&H00FFFFFF,&H000000FF,&H00000000,&HB4000000,-1,0,0,0,100,100,0,0,3,{max(8, title_fs // 4)},0,8,80,80,{int(height * 0.08)},1
+Style: Title,Inter,{title_fs},&H00FFFFFF,&H000000FF,{title_box},&HB4000000,-1,0,0,0,100,100,0,0,3,{max(8, title_fs // 4)},0,8,80,80,{int(height * 0.08)},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text

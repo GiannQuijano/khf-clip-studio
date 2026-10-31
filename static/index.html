@@ -3,38 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KHF Clip Studio</title>
+<title>Clip Studio · Kind Human Foundation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Nunito+Sans:wght@400;600;700&family=Lora:ital@1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="brand.css">
+<link rel="icon" href="logo.png">
 <style>
-:root{
-  --bg:#f6f5f2; --panel:#ffffff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e6e3dd;
-  --accent:#2f9e6d; --accent-ink:#ffffff; --accent-soft:#e3f4ec; --warn:#b4541a; --warn-soft:#fbeee4;
-  --chip:#f0eee9; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.04);
-}
-@media (prefers-color-scheme:dark){:root{
-  --bg:#141416; --panel:#1d1d20; --ink:#ececee; --muted:#9a9aa2; --line:#2e2e33;
-  --accent:#4cc28b; --accent-ink:#0d1f16; --accent-soft:#1b3328; --warn:#f0a070; --warn-soft:#3a2518;
-  --chip:#2a2a2f; --shadow:none;
-}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif}
-button,input,select,textarea{font:inherit;color:inherit}
-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
-header h1{white-space:nowrap;font-size:17px;margin:0;font-weight:700;letter-spacing:-.01em}
-header h1 span{color:var(--accent)}
-.pill{font-size:12px;padding:3px 10px;border-radius:99px;background:var(--chip);color:var(--muted)}
-.pill.on{background:var(--accent-soft);color:var(--accent)}
-.pill.off{background:var(--warn-soft);color:var(--warn)}
-.spacer{flex:1}
-.btn{display:inline-block;text-decoration:none;color:inherit;border:1px solid var(--line);background:var(--panel);padding:7px 14px;border-radius:9px;cursor:pointer;font-weight:500;white-space:nowrap}
-.btn:hover{border-color:var(--muted)}
-.btn.primary{background:var(--accent);color:var(--accent-ink) !important;border-color:var(--accent)}
-.btn.primary:hover{filter:brightness(1.05)}
-.btn.small{padding:4px 10px;font-size:13px}
-.btn.ghost{border-color:transparent;background:transparent}
-.btn:disabled{opacity:.5;cursor:default}
-.layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 57px)}
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 60px)}
 aside{border-right:1px solid var(--line);padding:16px;background:var(--panel)}
 main{padding:20px;min-width:0}
 .drop{display:block;border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;cursor:pointer;color:var(--muted);font-size:14px;transition:.15s}
@@ -49,7 +24,8 @@ main{padding:20px;min-width:0}
 .pitem .s{font-size:12px;color:var(--muted)}
 .pitem>div{min-width:0}
 .empty{max-width:560px;margin:60px auto;text-align:center;color:var(--muted)}
-.empty h2{color:var(--ink);font-size:24px;letter-spacing:-.02em;margin-bottom:8px}
+.empty h2{color:var(--ink);font-size:26px;margin:4px 0 8px}
+.tagline{font-family:var(--serif);font-style:italic;color:var(--teal-deep);margin:0;font-size:17px}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px;text-align:left}
 .steps div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:13px}
 .steps b{display:block;color:var(--ink);margin-bottom:4px}
@@ -59,23 +35,23 @@ video{width:100%;border-radius:10px;background:#000;display:block;max-height:60v
 .ptitle{font-size:20px;font-weight:700;margin:0 0 4px;letter-spacing:-.01em;word-break:break-word}
 .meta{color:var(--muted);font-size:13px}
 .bar{height:6px;background:var(--chip);border-radius:99px;overflow:hidden;margin:10px 0 6px}
-.bar i{display:block;height:100%;background:var(--accent);transition:width .4s}
+.bar i{display:block;height:100%;background:var(--hl);transition:width .4s}
 .err{background:var(--warn-soft);color:var(--warn);padding:10px 12px;border-radius:10px;font-size:14px;margin-top:10px}
 .tabs{display:flex;gap:4px;overflow-x:auto;margin:22px 0 14px;border-bottom:1px solid var(--line)}
-.tab{white-space:nowrap;padding:8px 14px;border:none;background:none;cursor:pointer;color:var(--muted);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}
-.tab.active{color:var(--ink);border-color:var(--accent)}
+.tab{font-family:var(--display);white-space:nowrap;padding:8px 14px;border:none;background:none;cursor:pointer;color:var(--muted);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:var(--ink);border-color:var(--hl)}
 .tab .n{font-size:12px;background:var(--chip);padding:1px 7px;border-radius:99px;margin-left:4px}
 .clips{display:grid;gap:14px}
 .clip h3{margin:0;font-size:16px}
 .clip .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.score{font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+.score{font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--hl-soft);color:var(--hl-ink);font-variant-numeric:tabular-nums}
 .time{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted)}
-.hook{font-style:italic;margin:8px 0;border-left:3px solid var(--accent);padding-left:10px}
+.hook{font-family:var(--serif);font-style:italic;margin:8px 0;border-left:3px solid var(--hl);padding-left:10px}
 .note{font-size:13px;color:var(--muted);margin:4px 0}
 .note b{color:var(--ink);font-weight:600}
 .ctx{font-size:13px;background:var(--warn-soft);color:var(--warn);padding:6px 10px;border-radius:8px;margin:6px 0}
 .copybox{background:var(--chip);border-radius:10px;padding:10px 76px 10px 12px;font-size:14px;margin:8px 0;position:relative;white-space:pre-wrap}
-.copybox .tags{color:var(--accent);margin-top:4px}
+.copybox .tags{color:var(--teal-deep);margin-top:4px}
 .copybox .btn{position:absolute;top:6px;right:6px}
 .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .controls label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
@@ -87,7 +63,7 @@ video{width:100%;border-radius:10px;background:#000;display:block;max-height:60v
 .regen input{flex:1;min-width:200px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel)}
 .seg{display:flex;gap:10px;padding:6px 8px;border-radius:8px;cursor:pointer}
 .seg:hover{background:var(--chip)}
-.seg.sel{background:var(--accent-soft)}
+.seg.sel{background:var(--hl-soft)}
 .seg .time{flex:none;width:52px}
 .transcript{max-height:560px;overflow:auto}
 .manual{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;font-size:14px}
@@ -113,16 +89,16 @@ dialog input{padding:6px 8px;border:1px solid var(--line);border-radius:8px;back
   .top{grid-template-columns:1fr}
   .steps{grid-template-columns:1fr}
   main{padding:16px}
-  header{padding:12px 16px}
-  header .pill{font-size:11px}
+  .topbar .pill{display:none}
 }
 </style>
 </head>
 <body>
-<header>
-  <h1>KHF <span>Clip Studio</span></h1>
-  <span id="aiPill" class="pill">…</span>
+<header class="topbar">
+  <a class="brand" href="./"><img class="logo-light" src="logo.png" alt="Kind Human Foundation"><img class="logo-dark" src="logo-white.png" alt="Kind Human Foundation"><span class="app">Clip Studio</span></a>
+  <nav class="nav"><a class="on" href="./">Studio</a><a href="guide.html">How it works</a><a href="pricing.html">Pricing</a></nav>
   <div class="spacer"></div>
+  <span id="aiPill" class="pill">…</span>
   <button class="btn small" id="settingsBtn">Brand settings</button>
 </header>
 <div class="layout">
@@ -190,13 +166,15 @@ async function loadList() {
 
 function renderEmpty() {
   $('#main').innerHTML = `<div class="empty">
-    <h2>Turn long videos into ready-to-post clips</h2>
+    <p class="tagline">Your donations. Our mission. Their joy.</p>
+    <h2>Turn field videos into ready-to-post clips</h2>
     <p>Upload an interview, event recording or talk. Claude reads the transcript, picks the moments that work on their own, and writes the captions. You review, tweak and export vertical clips with subtitles burned in.</p>
     <div class="steps">
       <div><b>1. Upload</b>Any mp4, mov or webm. Speech is transcribed on your server.</div>
       <div><b>2. Review</b>Claude suggests clips with a hook, context check, caption and hashtags.</div>
       <div><b>3. Export</b>9:16 for Reels, TikTok and Shorts, plus 1:1, 4:5 and 16:9.</div>
-    </div></div>`;
+    </div>
+    <p style="margin-top:22px"><a class="btn" href="guide.html">Read how it works</a></p></div>`;
 }
 
 // ---------- upload ----------
@@ -309,7 +287,7 @@ function controlsHtml(id, c) {
     <label>Format<select id="a-${id}">${config.aspects.map(a => `<option ${a === '9:16' ? 'selected' : ''} value="${a}">${a}${a === '9:16' ? ' Reels/TikTok' : a === '16:9' ? ' YouTube' : ''}</option>`).join('')}</select></label>
     <label>Framing<select id="f-${id}"><option value="crop">Fill (crop)</option><option value="fit">Fit (blur bg)</option></select></label>
     <label>Crop position<input type="range" min="0" max="1" step="0.05" value="0.5" id="x-${id}" title="Left ← → Right"></label>
-    <label>Caption style<select id="cs-${id}">${config.caption_styles.map(s => `<option>${s}</option>`).join('')}</select></label>
+    <label>Caption style<select id="cs-${id}">${config.caption_styles.map(s => `<option value="${s}">${({kind: 'Kind Human (teal)', bold: 'Bold (yellow)', clean: 'Clean'})[s] || s}</option>`).join('')}</select></label>
     <label class="check"><input type="checkbox" id="c-${id}" checked> Burn in captions</label>
     <label class="wide">On-screen title (first 4 seconds, leave empty for none)<input type="text" id="t-${id}" value="${esc(c.on_screen_title || '')}"></label>
   </div>`;
