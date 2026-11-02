@@ -3,13 +3,13 @@ services:
   - type: web
     name: khf-clip-studio
     runtime: docker
-    plan: starter            # persistent disks need a paid plan (about $7/month)
+    plan: standard           # 1 CPU / 2 GB: the smallest size that transcribes reliably ($25/month)
     healthCheckPath: /api/config
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false          # Render asks you to paste it during setup
       - key: WHISPER_MODEL
-        value: base          # small instance: base is fast enough; switch to small on a bigger plan
+        value: small         # good accuracy on 2 GB; use base on smaller instances
       - key: DATA_DIR
         value: /data
     disk:

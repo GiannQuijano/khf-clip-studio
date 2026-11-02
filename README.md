@@ -45,7 +45,7 @@ works, but clip suggestions fall back to simple sentence-based splits.
 2. On [render.com](https://render.com), choose **New > Blueprint** and pick the repo. It reads `render.yaml`.
 3. Paste your `ANTHROPIC_API_KEY` when asked. Render builds the Docker image and gives you a URL.
 
-This uses the Starter plan with a 10 GB disk (roughly $7/month plus disk).
+This uses the Standard plan (1 CPU, 2 GB, $25/month) with a 10 GB disk ($2.50/month). Smaller plans run out of memory while transcribing.
 
 ## Settings (environment variables)
 
