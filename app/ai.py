@@ -25,6 +25,9 @@ CLIP_SCHEMA = {
                     "why_it_works": {"type": "string"},
                     "context_note": {"type": "string"},
                     "caption": {"type": "string"},
+                    "first_comment": {"type": "string"},
+                    "thumbnail_time": {"type": "number"},
+                    "thumbnail_text": {"type": "string"},
                     "hashtags": {"type": "array", "items": {"type": "string"}},
                     "youtube_title": {"type": "string"},
                     "best_platforms": {"type": "array", "items": {"type": "string"}},
@@ -32,7 +35,7 @@ CLIP_SCHEMA = {
                 },
                 "required": [
                     "title", "start", "end", "hook", "on_screen_title", "why_it_works", "context_note",
-                    "caption", "hashtags", "youtube_title", "best_platforms", "score",
+                    "caption", "first_comment", "thumbnail_time", "thumbnail_text", "hashtags", "youtube_title", "best_platforms", "score",
                 ],
                 "additionalProperties": False,
             },
@@ -60,6 +63,17 @@ into the on_screen_title or caption.
 Copy guidelines: warm, human, genuine; no clickbait that the clip does not deliver; no invented facts, \
 names, numbers or quotes that are not in the transcript. Captions should be 1-3 short sentences plus an \
 optional call to action. Hashtags: 3-8, relevant, without the # sign.
+
+first_comment: the first comment the account posts under its own post, to give people something to engage \
+with. If the clip or caption asks people to act (donate, sign up, learn more), make the comment that action \
+with the matching link. If the clip tells a story, make it the key statistic or a one-sentence summary of \
+the story. 1-2 sentences. Only use links that appear in the brand details, exactly as written there; never \
+invent or guess a URL. If no suitable link is given, leave the link out.
+
+thumbnail_time and thumbnail_text: the cover image for the clip. You cannot see the video, so choose the \
+moment from what is said: the key line or emotional peak, where the speaker is likely to look engaged. \
+thumbnail_time is in seconds on the same timeline as start and end, inside the clip, and not in its first \
+or last second. thumbnail_text is 2-6 words of cover text that would make someone tap.
 
 Times: use the timestamps in the transcript (seconds). Start a clip at the start of a sentence and end it \
 at the end of one. score is 1-100 for how likely the clip is to perform well."""
@@ -124,6 +138,10 @@ def _clean(data: dict, segments: list[dict], duration: float, min_len: int, max_
         c["start"], c["end"] = round(start, 2), round(end, 2)
         c["hashtags"] = [h.lstrip("#").replace(" ", "") for h in c.get("hashtags", []) if h.strip()]
         c["score"] = max(1, min(100, int(c.get("score", 50))))
+        tt = float(c.get("thumbnail_time") or 0)
+        if not start + 0.5 <= tt <= end - 0.5:
+            tt = start + (end - start) * 0.3
+        c["thumbnail_time"] = round(tt, 1)
         clips.append(c)
     data["clips"] = clips
     return data
@@ -142,7 +160,9 @@ def heuristic_clips(segments: list[dict], duration: float, min_len: int = 15, ma
                 "title": text[:60] + ("..." if len(text) > 60 else ""),
                 "start": cur[0]["start"], "end": cur[-1]["end"],
                 "hook": cur[0]["text"], "on_screen_title": "", "why_it_works": "Auto-split by sentence (AI is off).",
-                "context_note": "", "caption": text[:200], "hashtags": [], "youtube_title": text[:90],
+                "context_note": "", "caption": text[:200], "first_comment": "",
+                "thumbnail_time": round(cur[0]["start"] + length * 0.3, 1), "thumbnail_text": "",
+                "hashtags": [], "youtube_title": text[:90],
                 "best_platforms": [], "score": 50,
             })
             cur = []

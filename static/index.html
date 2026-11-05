@@ -81,6 +81,26 @@ dialog input{padding:6px 8px;border:1px solid var(--line);border-radius:8px;back
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:99px;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:20}
 .toast.show{opacity:1}
 .muted{color:var(--muted)}
+.copybox .lbl{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:2px;font-family:var(--display)}
+.thumbrow{display:flex;gap:14px;align-items:flex-start;margin:10px 0 4px;flex-wrap:wrap}
+.thumbrow .shot{width:120px;flex:none;border-radius:8px;background:var(--chip);overflow:hidden;display:grid;place-items:center}
+.thumbrow .shot img{width:100%;display:block}
+.thumbrow .info{flex:1;min-width:200px;font-size:13px}
+.thumbrow .info b{font-family:var(--display)}
+.thumbrow .cover{font-family:var(--display);font-weight:700;font-size:15px;margin:4px 0}
+.renamebox{display:flex;gap:6px;align-items:center;margin-bottom:4px}
+.renamebox input{flex:1;min-width:0;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:16px;font-weight:700}
+.ptitle .btn{vertical-align:2px;margin-left:4px}
+dialog.brandset{width:min(720px,94vw);max-height:90vh;overflow:auto}
+dialog .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin:12px 0}
+dialog .fields .full{grid-column:1/-1}
+dialog .fields textarea{min-height:76px;font-size:14px;resize:vertical}
+dialog .fields input{font-size:14px}
+dialog .colors{display:flex;gap:16px;flex-wrap:wrap}
+dialog .colors label{flex-direction:row;align-items:center;gap:8px}
+dialog .colors input[type=color]{width:40px;height:30px;padding:2px}
+dialog h4{margin:16px 0 0;font-family:var(--display);font-size:14px}
+@media (max-width:600px){dialog .fields{grid-template-columns:1fr}}
 @media (max-width:900px){
   .layout{grid-template-columns:1fr}
   aside{border-right:none;border-bottom:1px solid var(--line)}
@@ -114,10 +134,29 @@ dialog input{padding:6px 8px;border:1px solid var(--line);border-radius:8px;back
   <main id="main"></main>
 </div>
 
-<dialog id="settingsDlg">
+<dialog id="settingsDlg" class="brandset">
   <h3 style="margin-top:0">Brand settings</h3>
-  <p class="muted" style="font-size:14px;margin-top:0">Tell Claude who you are, who you're talking to and what you want people to do. It uses this for tone, captions and calls to action on every video.</p>
-  <textarea id="brandCtx"></textarea>
+  <p class="muted" style="font-size:14px;margin-top:0">Claude reads all of this before it picks clips and writes captions, first comments and titles. The more specific you are, the more on-brand the copy. Leave any field empty to skip it.</p>
+  <div class="fields">
+    <label>Organization name<input id="b-org_name"></label>
+    <label>Tagline<input id="b-tagline"></label>
+    <label class="full">Mission<textarea id="b-mission"></textarea></label>
+    <label class="full">Vision<textarea id="b-vision"></textarea></label>
+    <label>Audience (who you're talking to)<textarea id="b-audience"></textarea></label>
+    <label>Tone of voice<textarea id="b-tone"></textarea></label>
+    <label>What supporters get out of it<textarea id="b-supporter_benefit"></textarea></label>
+    <label>Usual call to action<textarea id="b-cta"></textarea></label>
+    <label class="full">Links Claude may use in captions and first comments (one per line, e.g. "Donate: https://…")<textarea id="b-links"></textarea></label>
+    <label>Avoid (words, topics, styles)<textarea id="b-avoid"></textarea></label>
+    <label>Hashtags to use when they fit<textarea id="b-hashtags" placeholder="#cleanwater #kindhuman"></textarea></label>
+    <label class="full">Anything else Claude should know<textarea id="b-brand_context" placeholder="e.g. current campaign, upcoming events, names to spell a certain way"></textarea></label>
+  </div>
+  <h4>Brand colors (used in captions and on-screen titles)</h4>
+  <div class="colors" style="margin:8px 0 4px">
+    <label><input type="color" id="b-primary_color"> Primary</label>
+    <label><input type="color" id="b-accent_color"> Accent</label>
+  </div>
+  <h4>Clips</h4>
   <div class="grid">
     <label>Shortest clip (s)<input type="number" id="minLen" min="3"></label>
     <label>Longest clip (s)<input type="number" id="maxLen" min="5"></label>
@@ -141,7 +180,8 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 const fmt = t => { t = Math.max(0, t || 0); const m = Math.floor(t / 60), s = (t % 60); return `${m}:${s.toFixed(1).padStart(4, '0')}` };
 const toast = msg => { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1800) };
 
-let config = {}, current = null, tab = 'clips', pollTimer = null, manual = {start: null, end: null};
+let config = {}, current = null, tab = 'clips', pollTimer = null, manual = {start: null, end: null}, renaming = false;
+const thumbTimes = {};
 const STATUS = {queued: 'Queued', probing: 'Reading video', transcribing: 'Transcribing speech', 'finding clips': 'Claude is finding the best moments', ready: 'Ready', error: 'Something went wrong'};
 
 async function init() {
@@ -166,7 +206,7 @@ async function loadList() {
 
 function renderEmpty() {
   $('#main').innerHTML = `<div class="empty">
-    <p class="tagline">Your donations. Our mission. Their joy.</p>
+    <p class="tagline">Clean water. Big change.</p>
     <h2>Turn field videos into ready-to-post clips</h2>
     <p>Upload an interview, event recording or talk. Claude reads the transcript, picks the moments that work on their own, and writes the captions. You review, tweak and export vertical clips with subtitles burned in.</p>
     <div class="steps">
@@ -203,7 +243,7 @@ function upload(file) {
 async function openProject(id) {
   clearTimeout(pollTimer);
   try { current = await api(`/api/projects/${id}`) } catch { location.hash = ''; renderEmpty(); return }
-  location.hash = id; manual = {start: null, end: null};
+  location.hash = id; manual = {start: null, end: null}; renaming = false;
   renderProject(true); loadList(); schedulePoll();
 }
 
@@ -231,7 +271,8 @@ function renderProject(full) {
     <div class="top">
       <div class="card"><video id="player" src="/api/projects/${p.id}/source" controls preload="metadata" playsinline></video></div>
       <div class="card">
-        <div class="ptitle">${esc(p.name)}</div>
+        ${renaming ? `<div class="renamebox"><input id="renameInput" value="${esc(p.name)}" maxlength="120" onkeydown="if(event.key==='Enter')saveName();if(event.key==='Escape')cancelRename()"><button class="btn small primary" onclick="saveName()">Save</button><button class="btn small ghost" onclick="cancelRename()">Cancel</button></div>`
+          : `<div class="ptitle">${esc(p.name)} <button class="btn small ghost" onclick="startRename()" title="Rename this video">Rename</button></div>`}
         <div class="meta">${p.duration ? fmt(p.duration) + ' · ' : ''}${p.width ? p.width + '×' + p.height + ' · ' : ''}${p.language ? 'Language: ' + esc(p.language) : ''}</div>
         ${processing ? `<div class="bar"><i id="pbar" style="width:${Math.round((p.progress || 0) * 100)}%"></i></div>
           <div class="meta"><span class="spin"></span> ${esc(STATUS[p.status] || p.status)}…</div>
@@ -257,6 +298,7 @@ function renderProject(full) {
   if (tab === 'exports') body = exportsView(p);
 
   const kept = {};
+  const typedName = $('#renameInput')?.value;
   document.querySelectorAll('#tabBody input[id], #tabBody select[id]').forEach(el => kept[el.id] = el.type === 'checkbox' ? el.checked : el.value);
   if (full || !$('#player')) {
     $('#main').innerHTML = head + tabs + `<div id="tabBody">${body}</div>`;
@@ -268,6 +310,8 @@ function renderProject(full) {
     $('#player').replaceWith(vid);
   }
   if (!full) for (const [id, val] of Object.entries(kept)) { const el = document.getElementById(id); if (el && !id.startsWith('s-manual') && !id.startsWith('e-manual')) { if (el.type === 'checkbox') el.checked = val; else el.value = val } }
+  document.querySelectorAll('[data-thumb]').forEach(img => refreshThumb(img.dataset.thumb));
+  if (renaming) { const i = $('#renameInput'); if (i) { if (typedName != null) i.value = typedName; else { i.focus(); i.select() } } }
 }
 function setTab(t) { tab = t; renderProject(false) }
 
@@ -284,12 +328,14 @@ function controlsHtml(id, c) {
   return `<div class="controls">
     <label>Start (s)<input type="number" step="0.1" id="s-${id}" value="${c.start}"></label>
     <label>End (s)<input type="number" step="0.1" id="e-${id}" value="${c.end}"></label>
-    <label>Format<select id="a-${id}">${config.aspects.map(a => `<option ${a === '9:16' ? 'selected' : ''} value="${a}">${a}${a === '9:16' ? ' Reels/TikTok' : a === '16:9' ? ' YouTube' : ''}</option>`).join('')}</select></label>
-    <label>Framing<select id="f-${id}"><option value="crop">Fill (crop)</option><option value="fit">Fit (blur bg)</option></select></label>
-    <label>Crop position<input type="range" min="0" max="1" step="0.05" value="0.5" id="x-${id}" title="Left ← → Right"></label>
-    <label>Caption style<select id="cs-${id}">${config.caption_styles.map(s => `<option value="${s}">${({kind: 'Kind Human (teal)', bold: 'Bold (yellow)', clean: 'Clean'})[s] || s}</option>`).join('')}</select></label>
-    <label class="check"><input type="checkbox" id="c-${id}" checked> Burn in captions</label>
+    <label>Format<select id="a-${id}" onchange="refreshThumb('${id}')">${config.aspects.map(a => `<option ${a === '9:16' ? 'selected' : ''} value="${a}">${a}${a === '9:16' ? ' Reels/TikTok' : a === '16:9' ? ' YouTube' : ''}</option>`).join('')}</select></label>
+    <label>Framing<select id="f-${id}" onchange="refreshThumb('${id}')"><option value="crop">Fill (crop)</option><option value="fit">Fit (blur bg)</option></select></label>
+    <label>Crop position<input type="range" min="0" max="1" step="0.05" value="0.5" id="x-${id}" title="Left ← → Right" onchange="refreshThumb('${id}')"></label>
+    <label>Caption style<select id="cs-${id}">${config.caption_styles.map(s => `<option value="${s}">${({kind: 'Brand (accent color)', bold: 'Bold (yellow)', clean: 'Clean'})[s] || s}</option>`).join('')}</select></label>
+    <label class="check" title="Captions are drawn into the video itself, so they show on every platform, even with the sound off. Untick to export without captions."><input type="checkbox" id="c-${id}" checked> Add captions to the video</label>
     <label class="wide">On-screen title (first 4 seconds, leave empty for none)<input type="text" id="t-${id}" value="${esc(c.on_screen_title || '')}"></label>
+    <label>Title style<select id="ts-${id}">${(config.title_styles || ['brand']).map(s => `<option value="${s}">${({brand: 'Primary color box', accent: 'Accent color box', dark: 'Black box', outline: 'No box (outline)'})[s] || s}</option>`).join('')}</select></label>
+    <label>Title position<select id="tp-${id}">${(config.title_positions || ['top']).map(s => `<option value="${s}">${({top: 'Top', middle: 'Middle', bottom: 'Bottom'})[s] || s}</option>`).join('')}</select></label>
   </div>`;
 }
 
@@ -301,13 +347,44 @@ function clipCard(c) {
     ${c.why_it_works ? `<div class="note"><b>Why it works:</b> ${esc(c.why_it_works)}</div>` : ''}
     ${c.context_note ? `<div class="ctx"><b>Context check:</b> ${esc(c.context_note)}</div>` : ''}
     <div class="copybox"><button class="btn small" onclick="copyCaption('${c.id}')">Copy</button>${esc(c.caption)}${c.hashtags?.length ? `<div class="tags">${c.hashtags.map(h => '#' + esc(h)).join(' ')}</div>` : ''}</div>
+    ${c.first_comment ? `<div class="copybox"><button class="btn small" onclick="copyText('${c.id}', 'first_comment', 'First comment copied')">Copy</button><span class="lbl">First comment</span>${esc(c.first_comment)}</div>` : ''}
     ${c.youtube_title ? `<div class="note"><b>YouTube Shorts title:</b> ${esc(c.youtube_title)}</div>` : ''}
+    ${thumbHtml(c)}
     ${controlsHtml(c.id, c)}
     <div class="actions">
       <button class="btn" onclick="preview('${c.id}')">▶ Preview</button>
       <button class="btn primary" onclick="exportClip('${c.id}', ${JSON.stringify(c.title).replace(/"/g, '&quot;')})">Export clip</button>
     </div>
   </div>`;
+}
+
+function thumbHtml(c) {
+  if (thumbTimes[c.id] == null) thumbTimes[c.id] = c.thumbnail_time ?? (c.start + (c.end - c.start) * 0.3);
+  return `<div class="thumbrow">
+    <div class="shot"><img data-thumb="${c.id}" alt="Suggested thumbnail" loading="lazy"></div>
+    <div class="info"><b>Suggested thumbnail</b> <span class="time" id="tt-${c.id}"></span>
+      ${c.thumbnail_text ? `<div class="cover">“${esc(c.thumbnail_text)}”</div><div class="muted">Cover text idea, if you add text to the thumbnail.</div>` : ''}
+      <div class="actions" style="margin-top:8px">
+        <a class="btn small" id="td-${c.id}" href="#">Download thumbnail</a>
+        <button class="btn small ghost" onclick="useFrame('${c.id}')" title="Pause the player on the frame you want, then click">Use the frame in the player</button>
+      </div></div></div>`;
+}
+function thumbUrl(id, download) {
+  const q = new URLSearchParams({t: thumbTimes[id].toFixed(1), aspect: $(`#a-${id}`)?.value || '9:16', framing: $(`#f-${id}`)?.value || 'crop',
+    focus_x: (+($(`#x-${id}`)?.value ?? .5)).toFixed(2), exact: thumbTimes['exact-' + id] ? 1 : 0});
+  if (download) { q.set('download', 1); q.set('name', (current.suggestions.find(x => x.id === id)?.title || 'thumbnail')) }
+  return `/api/projects/${current.id}/frame?${q}`;
+}
+function refreshThumb(id) {
+  const img = document.querySelector(`img[data-thumb="${id}"]`); if (!img || thumbTimes[id] == null) return;
+  const u = thumbUrl(id); if (img.getAttribute('src') !== u) img.src = u;
+  const d = $(`#td-${id}`); if (d) d.href = thumbUrl(id, true);
+  const t = $(`#tt-${id}`); if (t) t.textContent = 'at ' + fmt(thumbTimes[id]);
+}
+function useFrame(id) {
+  const c = current.suggestions.find(x => x.id === id), t = $('#player').currentTime;
+  if (t < c.start || t > c.end) { toast(`Move the player inside this clip first (${fmt(c.start)}–${fmt(c.end)})`); return }
+  thumbTimes[id] = t; thumbTimes['exact-' + id] = true; refreshThumb(id); toast('Thumbnail updated');
 }
 
 function transcriptView(p) {
@@ -364,7 +441,8 @@ async function exportClip(id, label) {
   const body = {
     start: parseFloat($(`#s-${id}`).value), end: parseFloat($(`#e-${id}`).value),
     aspect: $(`#a-${id}`).value, framing: $(`#f-${id}`).value, focus_x: parseFloat($(`#x-${id}`).value),
-    captions: $(`#c-${id}`).checked, caption_style: $(`#cs-${id}`).value, title: $(`#t-${id}`).value, label,
+    captions: $(`#c-${id}`).checked, caption_style: $(`#cs-${id}`).value, title: $(`#t-${id}`).value,
+    title_style: $(`#ts-${id}`).value, title_position: $(`#tp-${id}`).value, label,
   };
   try {
     await api(`/api/projects/${current.id}/renders`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
@@ -376,6 +454,20 @@ function copyCaption(id) {
   const c = current.suggestions.find(x => x.id === id);
   const text = c.caption + (c.hashtags?.length ? '\n\n' + c.hashtags.map(h => '#' + h).join(' ') : '');
   navigator.clipboard.writeText(text).then(() => toast('Caption copied'));
+}
+function copyText(id, field, msg) {
+  const c = current.suggestions.find(x => x.id === id);
+  navigator.clipboard.writeText(c[field] || '').then(() => toast(msg));
+}
+function startRename() { renaming = true; renderProject(false) }
+function cancelRename() { renaming = false; renderProject(false) }
+async function saveName() {
+  const name = $('#renameInput').value.trim();
+  if (!name) { toast('The name can\'t be empty'); return }
+  try {
+    current = await api(`/api/projects/${current.id}`, {method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({name})});
+    renaming = false; renderProject(false); loadList(); toast('Renamed');
+  } catch (err) { toast(err.message) }
 }
 async function resuggest() {
   try {
@@ -400,16 +492,19 @@ async function deleteProject() {
 }
 
 // ---------- settings ----------
+const BRAND_FIELDS = ['org_name', 'tagline', 'mission', 'vision', 'audience', 'tone', 'supporter_benefit', 'cta', 'links', 'avoid', 'hashtags', 'brand_context', 'primary_color', 'accent_color'];
 $('#settingsBtn').onclick = async () => {
   const s = await api('/api/settings');
-  $('#brandCtx').value = s.brand_context; $('#minLen').value = s.min_len; $('#maxLen').value = s.max_len; $('#count').value = s.count;
+  BRAND_FIELDS.forEach(k => { const el = $('#b-' + k); if (el) el.value = s[k] ?? '' });
+  $('#minLen').value = s.min_len; $('#maxLen').value = s.max_len; $('#count').value = s.count;
   settingsDlg.showModal();
 };
 $('#saveSettings').onclick = async () => {
+  const body = {min_len: +$('#minLen').value, max_len: +$('#maxLen').value, count: +$('#count').value};
+  BRAND_FIELDS.forEach(k => body[k] = $('#b-' + k).value);
   try {
-    await api('/api/settings', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
-      brand_context: $('#brandCtx').value, min_len: +$('#minLen').value, max_len: +$('#maxLen').value, count: +$('#count').value})});
-    settingsDlg.close(); toast('Saved. New settings apply to the next "Find clips".');
+    await api('/api/settings', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+    settingsDlg.close(); toast('Saved. New settings apply to the next "Find clips" and export.');
   } catch (err) { toast(err.message) }
 };
 const settingsDlg = $('#settingsDlg');

@@ -33,6 +33,8 @@ const CLIPS = [
    why_it_works: 'A complete story in 25 seconds: the big news, the numbers (three taps, a thousand people), and an emotional payoff with the cheering street and the grandmother.',
    context_note: '',
    caption: 'Three taps. A thousand people. A lifetime of waiting, over. 💧 Thank you for making this possible.',
+   first_comment: 'Want to be part of the next well? Donate at kindhumanfoundation.com 💙',
+   thumbnail_time: 36.2, thumbnail_text: 'The day the water came',
    hashtags: ['cleanwater', 'kindhuman', 'borewell', 'givingback', 'waterislife'],
    youtube_title: '1,000 people just got clean water', best_platforms: ['Reels', 'TikTok', 'Shorts'], id2: 1},
   {id: 'c2', score: 86, title: 'Why kids walk for water', start: 3.6, end: 20.3,
@@ -40,6 +42,8 @@ const CLIPS = [
    on_screen_title: 'This lake is dry most of the year',
    why_it_works: 'Strong visual hook (standing in a dry lakebed) and a clear problem that makes the next clip land. Good as part 1 of a two-part post.',
    context_note: "The clip doesn't say where this is. Add the village or region in the caption if you can share it.",
+   first_comment: 'Families here walk over an hour for water, and most of that walking is done by kids before school.',
+   thumbnail_time: 6.0, thumbnail_text: 'This lake is dry most of the year',
    caption: 'This lake only fills during the monsoon. The rest of the year, kids walk over an hour for water before school. Here’s what changed this week 👇',
    hashtags: ['cleanwater', 'watercrisis', 'kindhumanfoundation', 'nonprofit'],
    youtube_title: 'They walk an hour for water every day', best_platforms: ['Reels', 'TikTok', 'Facebook']},
@@ -49,6 +53,8 @@ const CLIPS = [
    why_it_works: 'A heartfelt thank-you with a clear call to action. Works well pinned on Instagram or as a donor update on Facebook and LinkedIn.',
    context_note: 'Opens on a quote from someone who is not on camera. The on-screen title explains who the message is for.',
    caption: 'Every dollar you give goes straight into projects like this one. Want to be part of the next well? Link in bio. 💙',
+   first_comment: 'Donate to the next well: kindhumanfoundation.com',
+   thumbnail_time: 47.0, thumbnail_text: 'None of this happens without you',
    hashtags: ['kindhuman', 'donate', 'cleanwater', 'thankyou'],
    youtube_title: 'Your donation built this well', best_platforms: ['Instagram', 'Facebook', 'LinkedIn']},
 ];
@@ -61,7 +67,13 @@ function newProject(id, name, created) {
     options: {instructions: ''}, ai_used: true, simulate: false};
 }
 newProject('sample', 'sample-field-update.mp4', Date.now() / 1000);
-let settings = {brand_context: 'Kind Human Foundation funds practical, lasting clean-water solutions, such as wells and borewells, in communities where safe water is hardest to reach. Tagline: Your donations. Our mission. Their joy. Tone: warm, hopeful, genuine, grateful. Usual call to action: donate or learn more at kindhumanfoundation.com.', min_len: 15, max_len: 60, count: 5};
+let settings = {org_name: 'Kind Human Foundation', tagline: 'Clean water. Big change.',
+  mission: 'The Kind Human Foundation exists to bring clean, life-giving water to communities living in survival mode, where the need is greatest and the impact is immediate.',
+  vision: 'Seeing and serving the most forgotten through the power of clean water.', audience: 'Current and potential donors and supporters.',
+  tone: 'Uplifting, hopeful, genuine, authentic, personable, reliable.', supporter_benefit: "An opportunity to save a life that's overlooked.",
+  cta: 'Donate, or learn more at kindhumanfoundation.com.', links: 'Website and donations: kindhumanfoundation.com',
+  avoid: 'Pity, guilt or shock. Show real people and real impact, with dignity. Never invent facts or numbers.', hashtags: '', brand_context: '',
+  primary_color: '#3C4292', accent_color: '#5EC3B9', min_len: 15, max_len: 60, count: 5};
 
 function view(p) {
   const out = {...p};
@@ -88,12 +100,13 @@ window.fetch = function (url, opts = {}) {
   const u = new URL(url, location.href); const path = u.pathname.replace(/^.*?(\/api\/)/, '/api/'); const m = (opts.method || 'GET').toUpperCase();
   if (!path.startsWith('/api/')) return realFetch(url, opts);
   let r;
-  if (path === '/api/config') return json({ai: true, model: 'claude-opus-5-5', aspects: ['9:16', '1:1', '4:5', '16:9'], caption_styles: ['kind', 'bold', 'clean']});
+  if (path === '/api/config') return json({ai: true, model: 'claude-opus-5-5', aspects: ['9:16', '1:1', '4:5', '16:9'], caption_styles: ['kind', 'bold', 'clean'], title_styles: ['brand', 'accent', 'dark', 'outline'], title_positions: ['top', 'middle', 'bottom']});
   if (path === '/api/settings') { if (m === 'PUT') settings = JSON.parse(opts.body); return json(settings) }
   if (path === '/api/projects' && m === 'GET') return json(Object.values(projects).sort((a, b) => b.created - a.created).map(p => { const v = view(p); return {id: p.id, name: p.name, status: v.status, progress: v.progress, duration: p.duration, created: p.created, clips: v.suggestions.length} }));
   if ((r = path.match(/^\/api\/projects\/(\w+)$/))) {
     const p = projects[r[1]]; if (!p) return json({detail: 'Project not found'}, 404);
     if (m === 'DELETE') { delete projects[r[1]]; return json({ok: true}) }
+    if (m === 'PATCH') { const n = (JSON.parse(opts.body || '{}').name || '').trim(); if (!n) return json({detail: "The name can't be empty."}, 400); p.name = n; return json(view(p)) }
     return json(view(p));
   }
   if ((r = path.match(/^\/api\/projects\/(\w+)\/suggest$/))) {
@@ -104,7 +117,7 @@ window.fetch = function (url, opts = {}) {
   }
   if ((r = path.match(/^\/api\/projects\/(\w+)\/renders$/)) && m === 'POST') {
     const p = projects[r[1]]; const b = JSON.parse(opts.body);
-    const rr = {...b, id: 'r' + Math.random().toString(36).slice(2, 9), created: Date.now() / 1000, doneAt: Date.now() + 3000};
+    const rr = {...b, colors: {primary: settings.primary_color, accent: settings.accent_color}, id: 'r' + Math.random().toString(36).slice(2, 9), created: Date.now() / 1000, doneAt: Date.now() + 3000};
     p.renders.unshift(rr); return json(rr);
   }
   if ((r = path.match(/^\/api\/projects\/(\w+)\/renders\/(\w+)$/)) && m === 'DELETE') {
@@ -140,5 +153,5 @@ document.addEventListener('click', e => {
 }, true);
 
 if (!location.hash) { try { history.replaceState(null, '', '#sample') } catch { location.hash = 'sample' } }
-window.__demo = {DURATION, words, segments, projects};
+window.__demo = {DURATION, words, segments, projects, settings: () => settings};
 })();
