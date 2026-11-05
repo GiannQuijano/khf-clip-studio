@@ -9,11 +9,12 @@ TikTok, YouTube Shorts, Facebook and LinkedIn.
 2. **Transcribe**: speech is transcribed on the server with word-level timing ([faster-whisper](https://github.com/SYSTRAN/faster-whisper), runs locally, free).
 3. **Find clips**: Claude reads the transcript and suggests the strongest stand-alone moments, each with a hook,
    a "why it works" note, a **context check** (flags clips that could be misleading or confusing without context),
-   an on-screen title, a caption, hashtags and a YouTube Shorts title. You can steer it ("moments about volunteers",
-   "funny bits for TikTok") and set your organisation's voice once under **Brand settings**.
+   an on-screen title, a caption, a first comment, hashtags, a YouTube Shorts title and a suggested thumbnail. You can steer it ("moments about volunteers",
+   "funny bits for TikTok") and fill in your organization's mission, vision, tone, links and brand colors once under **Brand settings**.
 4. **Tweak and export**: adjust start and end, preview in the player, then export to 9:16, 1:1, 4:5 or 16:9 with
    animated word-by-word captions burned in. "Fill" crops to the speaker (with a crop-position slider); "Fit" keeps the
-   whole shot over a blurred background.
+   whole shot over a blurred background. The on-screen title has its own style (brand-colored box, black box or
+   outline) and position (top, middle or bottom). Videos can be renamed after upload.
 5. You can also cut any range by hand from the **Transcript** tab, and download the full transcript as `.srt`.
 
 ## Run it

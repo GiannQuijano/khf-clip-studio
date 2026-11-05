@@ -1,10 +1,10 @@
-/* Kind Human Foundation brand: navy #2E3487 + teal #74C0B6 from the logo.
+/* Kind Human Foundation brand colors: navy #3C4292 + teal #5EC3B9.
    Shared by the studio, the How it works guide and the Pricing page. */
 :root{
-  --navy:#2e3487; --teal:#74c0b6; --teal-deep:#3f8f85;
+  --navy:#3c4292; --teal:#5ec3b9; --teal-deep:#2f8a80;
   --bg:#f4f6fb; --panel:#ffffff; --ink:#1b1f4b; --muted:#5d6285; --line:#e0e3ef;
-  --accent:#2e3487; --accent-ink:#ffffff; --accent-soft:#e9eaf7;
-  --hl:#74c0b6; --hl-soft:#e3f3f0; --hl-ink:#1f5f57;
+  --accent:#3c4292; --accent-ink:#ffffff; --accent-soft:#eaebf7;
+  --hl:#5ec3b9; --hl-soft:#e1f4f2; --hl-ink:#1d5e57;
   --warn:#a5501c; --warn-soft:#fbeee4;
   --chip:#eef0f7; --shadow:0 1px 2px rgba(27,31,75,.05),0 6px 20px rgba(27,31,75,.05);
   --display:"Lexend","Avenir Next","Segoe UI",system-ui,sans-serif;
@@ -13,13 +13,13 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#11132a; --panel:#1a1d3a; --ink:#eef0fa; --muted:#a3a7c7; --line:#2c3058;
-  --accent:#74c0b6; --accent-ink:#0e2a26; --accent-soft:#1f2550;
-  --hl:#74c0b6; --hl-soft:#173a39; --hl-ink:#9fdcd3;
+  --accent:#5ec3b9; --accent-ink:#0e2a26; --accent-soft:#1f2550;
+  --hl:#5ec3b9; --hl-soft:#173a39; --hl-ink:#9fdcd3;
   --warn:#f0a070; --warn-soft:#3a2518; --chip:#23274a; --shadow:none; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#11132a; --panel:#1a1d3a; --ink:#eef0fa; --muted:#a3a7c7; --line:#2c3058;
-  --accent:#74c0b6; --accent-ink:#0e2a26; --accent-soft:#1f2550;
-  --hl:#74c0b6; --hl-soft:#173a39; --hl-ink:#9fdcd3;
+  --accent:#5ec3b9; --accent-ink:#0e2a26; --accent-soft:#1f2550;
+  --hl:#5ec3b9; --hl-soft:#173a39; --hl-ink:#9fdcd3;
   --warn:#f0a070; --warn-soft:#3a2518; --chip:#23274a; --shadow:none; color-scheme:dark}
 
 *{box-sizing:border-box}

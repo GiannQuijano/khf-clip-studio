@@ -33,7 +33,8 @@ function drawScene(t) {
 }
 
 // ---- captions, mirroring the export styles ----
-const STY = {kind: {hl: '#74C0B6', upper: true, box: '#2E3487'}, bold: {hl: '#FFE500', upper: true, box: '#000'}, clean: {hl: null, upper: false, box: '#000'}};
+const STY = {kind: {hl: 'accent', upper: true}, bold: {hl: '#FFE500', upper: true}, clean: {hl: null, upper: false}};
+const TSTY = {brand: ['#fff', 'primary'], accent: ['primary', 'accent'], dark: ['#fff', '#000'], outline: ['#fff', null]};
 function group(t, start, end) {
   const ws = words.filter(w => w.end > start && w.start < end), gs = []; let cur = [];
   ws.forEach(w => { cur.push(w); if (cur.length >= 3 || /[.,?!]$/.test(w.word)) { gs.push(cur); cur = [] } });
@@ -44,12 +45,18 @@ function group(t, start, end) {
   }
 }
 function drawCaps(c, W, H, t, r) {
-  const s = STY[r.caption_style] || STY.kind;
-  if (r.title && t - r.start < 4) {
+  const col = Object.assign({primary: '#3C4292', accent: '#5EC3B9'}, r.colors || {}), pick = v => col[v] || v;
+  const s = STY[r.caption_style] || STY.kind, hl = s.hl && pick(s.hl);
+  const titleOn = r.title && t - r.start < 4, bottomTitle = titleOn && r.title_position === 'bottom';
+  if (titleOn) {
+    const [tc, tb] = (TSTY[r.title_style] || TSTY.brand).map(v => v && pick(v));
     const fs = Math.round(H * (H >= W ? .042 : .06)); c.font = `700 ${fs}px Inter, "Nunito Sans", sans-serif`;
-    const bw = Math.min(c.measureText(r.title).width + fs * 1.2, W * .92);
-    c.fillStyle = s.box; c.fillRect((W - bw) / 2, H * .08, bw, fs * 1.6);
-    c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(r.title, W / 2, H * .08 + fs * .82, W * .88);
+    const bw = Math.min(c.measureText(r.title).width + fs * 1.2, W * .92), bh = fs * 1.6;
+    const top = r.title_position === 'middle' ? (H - bh) / 2 : r.title_position === 'bottom' ? H * (H > W ? .92 : .94) - bh : H * .08;
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    if (tb) { c.fillStyle = tb; c.fillRect((W - bw) / 2, top, bw, bh) }
+    else { c.lineJoin = 'round'; c.lineWidth = Math.max(3, fs * .14); c.strokeStyle = '#000'; c.strokeText(r.title, W / 2, top + fs * .82, W * .88) }
+    c.fillStyle = tc; c.fillText(r.title, W / 2, top + fs * .82, W * .88);
   }
   if (!r.captions) return;
   const cg = group(t, r.start, r.end); if (!cg) return;
@@ -57,9 +64,9 @@ function drawCaps(c, W, H, t, r) {
   const parts = cg.g.map(w => (s.upper ? w.word.toUpperCase() : w.word).trim());
   const measure = () => { c.font = `800 ${fs}px Inter, "Nunito Sans", sans-serif`; const ws = parts.map(p => c.measureText(p).width), sp = c.measureText(' ').width; return [ws, sp, ws.reduce((a, b) => a + b, 0) + sp * (parts.length - 1)] };
   let [ws, sp, tot] = measure(); if (tot > W * .9) { fs = Math.floor(fs * W * .9 / tot); [ws, sp, tot] = measure() }
-  let x = (W - tot) / 2; const y = H * (H > W ? .74 : .86);
+  let x = (W - tot) / 2; const y = H * (H > W ? .74 : .86) - (bottomTitle ? H * (H > W ? .08 : .14) : 0);
   c.lineJoin = 'round'; c.lineWidth = Math.max(3, fs * .14); c.strokeStyle = '#000';
-  parts.forEach((p, i) => { c.strokeText(p, x, y); c.fillStyle = s.hl && i === cg.a ? s.hl : '#fff'; c.fillText(p, x, y); x += ws[i] + sp });
+  parts.forEach((p, i) => { c.strokeText(p, x, y); c.fillStyle = hl && i === cg.a ? hl : '#fff'; c.fillText(p, x, y); x += ws[i] + sp });
 }
 const ASPECT = {'9:16': [360, 640], '4:5': [400, 500], '1:1': [440, 440], '16:9': [640, 360]};
 function renderOut(c, W, H, t, r) {
@@ -134,12 +141,27 @@ function decorate() {
   requestAnimationFrame(loop);
 })(performance.now());
 
+// Suggested thumbnails: draw the frame instead of asking the server for it.
+function demoThumbs() {
+  document.querySelectorAll('img[data-thumb]').forEach(img => {
+    const id = img.dataset.thumb, t = thumbTimes[id]; if (t == null) return;
+    const aspect = $(`#a-${id}`)?.value || '9:16', [W, H] = ASPECT[aspect] || ASPECT['9:16'];
+    const key = [t.toFixed(1), aspect, $(`#f-${id}`)?.value, $(`#x-${id}`)?.value].join('|');
+    if (img.dataset.key === key) return;
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    renderOut(cv.getContext('2d'), W, H, t, {framing: $(`#f-${id}`)?.value || 'crop', focus_x: +($(`#x-${id}`)?.value ?? .5), captions: false});
+    img.dataset.key = key; img.src = cv.toDataURL('image/jpeg', .85);
+  });
+}
+const origThumb = refreshThumb;
+refreshThumb = function (id) { origThumb(id); demoThumbs() };
+
 // Run after every studio re-render.
 const origRender = renderProject;
 renderProject = function (full) {
   if (full) player = null;
   origRender(full);
-  decorate();
+  decorate(); demoThumbs();
 };
 const origList = loadList;
 loadList = async function () { await origList(); decorate() };

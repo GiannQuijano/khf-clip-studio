@@ -35,7 +35,10 @@ render.yaml       One-click Render deploy (Standard plan + 10 GB disk)
    to simple sentence-based splits.
 4. `POST /api/projects/<id>/renders`: `media.render_clip()` cuts, reframes (crop or blurred-background
    fit, 9:16 / 4:5 / 1:1 / 16:9) and burns in an ASS subtitle file built from the word timings.
-5. The UI polls `GET /api/projects/<id>` every 2 seconds while anything is running.
+5. Suggested thumbnails come from `GET /api/projects/<id>/frame` (`media.frame()`), framed like the export and cached
+   under `frames/`. Without `exact=1`, ffmpeg's `thumbnail` filter picks the most representative frame from the 2 s
+   around the time Claude chose.
+6. The UI polls `GET /api/projects/<id>` every 2 seconds while anything is running.
 
 Jobs run one at a time (`WORKERS=1`) so a 2 GB server doesn't run out of memory. Unfinished jobs are
 re-queued on restart; a video interrupted twice is marked as failed instead of looping.
@@ -58,11 +61,11 @@ Do these in a fresh repo or a new branch. Search for `Kind Human`, `KHF` and `kh
 
 | What | Where | Change |
 |---|---|---|
-| Colors and fonts | `static/brand.css` | `--navy`/`--teal` and the light/dark token blocks at the top. `--accent` is the main button color; `--hl` is the highlight color. Fonts are loaded from Google Fonts in the `<link>` at the top of each HTML page. |
+| Colors and fonts | `static/brand.css` (pages) and `DEFAULT_BRAND` colors in `app/main.py` (captions and titles; also editable in Brand settings) | `--navy`/`--teal` and the light/dark token blocks at the top. `--accent` is the main button color; `--hl` is the highlight color. Fonts are loaded from Google Fonts in the `<link>` at the top of each HTML page. |
 | Logo | `static/logo.png`, `static/logo-white.png` | Replace both. Transparent PNG, roughly 5:1, at least 60 px tall. The white version is for dark mode. |
-| Page titles and names | `static/index.html`, `guide.html`, `pricing.html` | The `<title>`s, the `alt` text on the logos, and the tagline (`Your donations. Our mission. Their joy.`) in the empty state and footers. |
-| Default brand voice | `app/main.py`, `DEFAULT_SETTINGS["brand_context"]` | Who the client is, the audience, the tone and the call to action. Users can also edit this in the app under **Brand settings** (saved to `DATA_DIR/settings.json`). |
-| Caption colors | `app/media.py`, `CAPTION_STYLES["kind"]` | ASS colors are `&HAABBGGRR` (reversed). For example, teal `#74C0B6` becomes `&H00B6C074`. The 3rd value is the active word; the 5th is the title box. Rename the key (and its label in `index.html`, search `Kind Human (teal)`) if you like. |
+| Page titles and names | `static/index.html`, `guide.html`, `pricing.html` | The `<title>`s, the `alt` text on the logos, and the tagline (`Clean water. Big change.`) in the empty state and footers. |
+| Default brand profile | `app/main.py`, `DEFAULT_BRAND` | Organization, mission, vision, audience, tone, tagline, call to action, links, things to avoid, hashtags and the two brand colors. Users edit these in the app under **Brand settings** (saved to `DATA_DIR/settings.json`). Also clear `OLD_DEFAULT_CONTEXT` for a new client. |
+| Caption and title styles | `app/media.py`, `CAPTION_STYLES` and `TITLE_STYLES` | `"primary"`/`"accent"` are replaced by the brand colors from Brand settings, so most clients need no change here. Other values are ASS colors, `&HAABBGGRR` (reversed); `hex_to_ass()` converts. Labels live in `index.html` (search `Primary color box`). |
 | Guide content | `static/guide.html` | Mostly generic. Edit the Kind Human Foundation and clean-water examples (brand voice section, tips). |
 | Pricing content | `static/pricing.html` | Update if the client uses a different host or plan. The "Moving the billing" section is written for Render + Anthropic. |
 | Service name | `render.yaml` | `name: khf-clip-studio` sets the URL (`<name>.onrender.com`). |

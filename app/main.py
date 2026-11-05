@@ -25,14 +25,61 @@ PROJECTS.mkdir(parents=True, exist_ok=True)
 SETTINGS_FILE = DATA / "settings.json"
 STATIC = Path(__file__).resolve().parent.parent / "static"
 
-DEFAULT_SETTINGS = {
-    "brand_context": "Kind Human Foundation funds practical, lasting clean-water solutions, such as wells and "
-                     "borewells, in communities where safe water is hardest to reach. Tagline: Your donations. "
-                     "Our mission. Their joy. Audience: current and potential donors and supporters. Tone: warm, "
-                     "hopeful, genuine, grateful; show real people and real impact, never pity. Usual call to "
-                     "action: donate or learn more at kindhumanfoundation.com.",
-    "min_len": 15, "max_len": 60, "count": 5,
+# The brand profile Claude writes for. Every field can be edited in the app under Brand settings.
+DEFAULT_BRAND = {
+    "org_name": "Kind Human Foundation",
+    "mission": "The Kind Human Foundation exists to bring clean, life-giving water to communities living in "
+               "survival mode, where the need is greatest and the impact is immediate.",
+    "vision": "Seeing and serving the most forgotten through the power of clean water.",
+    "audience": "Current and potential donors and supporters.",
+    "tone": "Uplifting, hopeful, genuine, authentic, personable, reliable.",
+    "tagline": "Clean water. Big change.",
+    "supporter_benefit": "An opportunity to save a life that's overlooked.",
+    "cta": "Donate, or learn more at kindhumanfoundation.com.",
+    "links": "Website and donations: kindhumanfoundation.com",
+    "avoid": "Pity, guilt or shock. Show real people and real impact, with dignity. Never invent facts or numbers.",
+    "hashtags": "",
+    "primary_color": "#3C4292",
+    "accent_color": "#5EC3B9",
 }
+DEFAULT_SETTINGS = DEFAULT_BRAND | {"brand_context": "", "min_len": 15, "max_len": 60, "count": 5}
+
+# The single free-text brand description used before Brand settings had separate fields. If a saved
+# settings file still holds it unchanged, it is dropped so it doesn't contradict the new profile.
+OLD_DEFAULT_CONTEXT = (
+    "Kind Human Foundation funds practical, lasting clean-water solutions, such as wells and "
+    "borewells, in communities where safe water is hardest to reach. Tagline: Your donations. "
+    "Our mission. Their joy. Audience: current and potential donors and supporters. Tone: warm, "
+    "hopeful, genuine, grateful; show real people and real impact, never pity. Usual call to "
+    "action: donate or learn more at kindhumanfoundation.com."
+)
+
+BRAND_LABELS = [
+    ("org_name", "Organization"),
+    ("mission", "Mission"),
+    ("vision", "Vision"),
+    ("audience", "Audience"),
+    ("tone", "Tone of voice"),
+    ("tagline", "Tagline"),
+    ("supporter_benefit", "What supporters get out of it"),
+    ("cta", "Usual call to action"),
+    ("links", "Links (use only these, exactly as written)"),
+    ("avoid", "Avoid"),
+    ("hashtags", "Hashtags to use when relevant"),
+    ("brand_context", "Other notes"),
+]
+
+
+def brand_text(s: dict) -> str:
+    """Turn the brand settings into the description Claude reads before picking clips."""
+    return "\n".join(f"{label}: {str(s.get(key) or '').strip()}" for key, label in BRAND_LABELS
+                     if str(s.get(key) or "").strip())
+
+
+def brand_colors(s: dict) -> dict:
+    return {"primary": s.get("primary_color") or DEFAULT_BRAND["primary_color"],
+            "accent": s.get("accent_color") or DEFAULT_BRAND["accent_color"]}
+
 
 app = FastAPI(title="KHF Clip Studio")
 # One job at a time by default: transcription and video encoding each use a lot of memory, and running
@@ -80,7 +127,10 @@ def update(pid: str, fn) -> dict:
 def settings() -> dict:
     s = dict(DEFAULT_SETTINGS)
     if SETTINGS_FILE.exists():
-        s.update(json.loads(SETTINGS_FILE.read_text()))
+        saved = json.loads(SETTINGS_FILE.read_text())
+        if saved.get("brand_context", "").strip() == OLD_DEFAULT_CONTEXT:
+            saved["brand_context"] = ""
+        s.update(saved)
     return s
 
 
@@ -103,7 +153,7 @@ def set_status(pid: str, status: str, progress: float | None = None, error: str 
 def run_suggest(pid: str, opts: dict):
     p = load(pid)
     s = settings()
-    brand = opts.get("brand_context") or s["brand_context"]
+    brand = brand_text(s)
     min_len = int(opts.get("min_len") or s["min_len"])
     max_len = int(opts.get("max_len") or s["max_len"])
     count = int(opts.get("count") or s["count"])
@@ -165,7 +215,10 @@ def do_render(pid: str, rid: str):
             words = p.get("words", []) if r["captions"] else []
             ass_path = d / f"{rid}.ass"
             ass_path.write_text(media.build_ass(words, r["start"], r["end"], W, H,
-                                                r["caption_style"], r.get("title") or None))
+                                                r["caption_style"], r.get("title") or None,
+                                                title_style=r.get("title_style", "brand"),
+                                                title_position=r.get("title_position", "top"),
+                                                colors=r.get("colors") or brand_colors(settings())))
         out = d / "renders" / f"{rid}.mp4"
         out.parent.mkdir(exist_ok=True)
         media.render_clip(d / p["source"], out, r["start"], r["end"], r["aspect"], r["framing"],
@@ -189,7 +242,8 @@ def do_render(pid: str, rid: str):
 @app.get("/api/config")
 def config():
     return {"ai": ai.available(), "model": ai.MODEL if ai.available() else None,
-            "aspects": list(media.ASPECTS), "caption_styles": list(media.CAPTION_STYLES)}
+            "aspects": list(media.ASPECTS), "caption_styles": list(media.CAPTION_STYLES),
+            "title_styles": list(media.TITLE_STYLES), "title_positions": list(media.TITLE_POSITIONS)}
 
 
 @app.get("/api/settings")
@@ -197,8 +251,24 @@ def get_settings():
     return settings()
 
 
+HEX = r"^#[0-9A-Fa-f]{6}$"
+
+
 class SettingsIn(BaseModel):
-    brand_context: str = ""
+    org_name: str = Field("", max_length=200)
+    mission: str = Field("", max_length=2000)
+    vision: str = Field("", max_length=2000)
+    audience: str = Field("", max_length=1000)
+    tone: str = Field("", max_length=1000)
+    tagline: str = Field("", max_length=300)
+    supporter_benefit: str = Field("", max_length=1000)
+    cta: str = Field("", max_length=1000)
+    links: str = Field("", max_length=2000)
+    avoid: str = Field("", max_length=1000)
+    hashtags: str = Field("", max_length=500)
+    primary_color: str = Field(DEFAULT_BRAND["primary_color"], pattern=HEX)
+    accent_color: str = Field(DEFAULT_BRAND["accent_color"], pattern=HEX)
+    brand_context: str = Field("", max_length=4000)
     min_len: int = Field(15, ge=3, le=600)
     max_len: int = Field(60, ge=5, le=900)
     count: int = Field(5, ge=1, le=20)
@@ -244,6 +314,18 @@ def create_project(file: UploadFile = File(...), instructions: str = Form("")):
 @app.get("/api/projects/{pid}")
 def get_project(pid: str):
     return public(load(pid))
+
+
+class RenameIn(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+
+
+@app.patch("/api/projects/{pid}")
+def rename_project(pid: str, body: RenameIn):
+    name = " ".join(body.name.split())
+    if not name:
+        raise HTTPException(400, "The name can't be empty.")
+    return public(update(pid, lambda p: p.update(name=name)))
 
 
 @app.delete("/api/projects/{pid}")
@@ -297,6 +379,8 @@ class RenderIn(BaseModel):
     captions: bool = True
     caption_style: str = "kind"
     title: str = ""
+    title_style: str = "brand"
+    title_position: str = "top"
     focus_x: float = Field(0.5, ge=0, le=1)
     label: str = ""
 
@@ -306,11 +390,14 @@ def create_render(pid: str, body: RenderIn):
     p = load(pid)
     if body.aspect not in media.ASPECTS:
         raise HTTPException(400, "Unknown aspect ratio")
+    if body.title_style not in media.TITLE_STYLES or body.title_position not in media.TITLE_POSITIONS:
+        raise HTTPException(400, "Unknown title style or position")
     end = min(body.end, p.get("duration") or body.end)
     if end - body.start < 1:
         raise HTTPException(400, "Clip must be at least 1 second long")
     rid = uuid.uuid4().hex[:10]
-    r = body.model_dump() | {"id": rid, "end": end, "status": "rendering", "error": None, "created": time.time()}
+    r = body.model_dump() | {"id": rid, "end": end, "status": "rendering", "error": None, "created": time.time(),
+                             "colors": brand_colors(settings())}
     update(pid, lambda p: p["renders"].insert(0, r))
     pool.submit(do_render, pid, rid)
     return r
@@ -336,6 +423,26 @@ def thumb(pid: str):
     if not f.exists():
         raise HTTPException(404)
     return FileResponse(f)
+
+
+@app.get("/api/projects/{pid}/frame")
+def frame(pid: str, t: float, aspect: str = "9:16", framing: str = "crop", focus_x: float = 0.5,
+          exact: int = 0, download: int = 0, name: str = "thumbnail"):
+    """A still image for the clip's cover, framed like the export. Without `exact`, picks the most
+    representative frame from the 2 seconds around `t` (avoids blinks and motion blur more often)."""
+    d = _pdir(pid)
+    p = load(pid)
+    if aspect not in media.ASPECTS or framing not in ("crop", "fit"):
+        raise HTTPException(400, "Unknown format")
+    t = round(min(max(t, 0.0), max(0.0, (p.get("duration") or t) - 0.1)), 1)
+    fx = round(min(max(focus_x, 0.0), 1.0), 2)
+    out = d / "frames" / f"{t:.1f}_{aspect.replace(':', 'x')}_{framing}_{fx:.2f}_{1 if exact else 0}.jpg"
+    if not out.exists():
+        out.parent.mkdir(exist_ok=True)
+        media.frame(d / p["source"], out, t, aspect, framing, fx, best_of_window=not exact)
+    base = "".join(ch if ch.isalnum() or ch in " -_" else "" for ch in name).strip()[:50] or "thumbnail"
+    return FileResponse(out, media_type="image/jpeg",
+                        filename=f"{base}-{aspect.replace(':', 'x')}.jpg" if download else None)
 
 
 @app.get("/api/projects/{pid}/renders/{rid}/file")

@@ -73,10 +73,14 @@ ol.handover li{margin-bottom:10px}
     <div class="card"><h3>Consistent and on-brand</h3><p>Every clip uses the foundation's teal-and-navy captions and the same donor-focused voice, whoever on the team makes it.</p></div>
   </div>
 
+  <h2>Months you don't use it</h2>
+  <p>The server is billed while it's running, whether or not anyone uploads a video, so an unused month still costs about <b>$27.50</b>. Claude is pay-as-you-go, so it costs nothing in a month with no videos.</p>
+  <p>If you expect a long break, you can pause the server. In <a href="https://dashboard.render.com" target="_blank" rel="noopener">dashboard.render.com</a>, open the <b>khf-clip-studio</b> service, go to <b>Settings</b> and choose <b>Suspend</b>. Render bills the server by the second while it runs, so a suspended server should stop the $25 charge; the storage disk ($2.50/month) may still be billed so your videos stay saved. Check <b>Billing</b> a day later to confirm. Choose <b>Resume</b> when you need it again; it's back in a few minutes.</p>
+
   <h2>Moving the billing to the foundation</h2>
   <p>The studio is currently paid for on a temporary card. To move it over:</p>
   <ol class="handover">
-    <li><b>Render (server and storage)</b><span class="who">5 min</span><br>In the Render dashboard, open <b>Workspace settings → Billing</b> and replace the payment card with the foundation's. To hand over the account entirely, invite the foundation's email under <b>Workspace settings → Members</b>, make them an owner, then remove the temporary owner.</li>
+    <li><b>Render (server and storage)</b><span class="who">5 min</span><br>Go to <a href="https://dashboard.render.com" target="_blank" rel="noopener">dashboard.render.com</a> and sign in. (First, Giann invites your email to the Render workspace with the Admin role, which can change the payment card. Accept the invite from your inbox.) Then click <b>Billing</b> in the left-hand menu (or open the workspace menu in the top-left corner and choose <b>Billing</b>) and replace the payment card with the foundation's. To hand over the account entirely, invite the foundation's email under <b>Workspace settings → Members</b>, give it the Admin role, then remove the temporary account.</li>
     <li><b>Anthropic (Claude AI)</b><span class="who">10 min</span><br>The foundation creates its own account at console.anthropic.com, adds a card or prepaid credit under <b>Billing</b>, and creates an API key under <b>API keys</b>. It's a good idea to set a monthly spend limit there too, such as $20.</li>
     <li><b>Swap the key</b><span class="who">2 min</span><br>In Render, open the <b>khf-clip-studio</b> service → <b>Environment</b>, replace the value of <code>ANTHROPIC_API_KEY</code> with the foundation's key, and click <b>Save</b>. The studio restarts in a minute or two, and no videos are lost.</li>
   </ol>
@@ -93,7 +97,7 @@ ol.handover li{margin-bottom:10px}
   </table>
   </div>
 
-  <p class="foot"><span class="tag">Your donations. Our mission. Their joy.</span> · Clip Studio for Kind Human Foundation · <a href="guide.html">How it works</a></p>
+  <p class="foot"><span class="tag">Clean water. Big change.</span> · Clip Studio for Kind Human Foundation · <a href="guide.html">How it works</a></p>
 </main>
 </body>
 </html>
